@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>🍹 Frutalia - Pedidos</title>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Fredoka', sans-serif;
+      background: linear-gradient(135deg, #fef6e4, #fde2e2);
+      color: #333;
+      margin: 0;
+      padding: 2rem;
+    }
+
+    .container {
+      max-width: 700px;
+      margin: auto;
+      background: #fff;
+      padding: 2rem;
+      border-radius: 20px;
+      box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+    }
+
+    h1, h2 {
+      text-align: center;
+      color: #ff6f61;
+    }
+
+    form {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    label {
+      font-weight: bold;
+    }
+
+    input, select, textarea {
+      padding: 0.75rem;
+      border-radius: 10px;
+      border: 2px solid #ffd6c1;
+      font-size: 1rem;
+    }
+
+    button {
+      background-color: #ff6f61;
+      color: white;
+      padding: 0.75rem;
+      border: none;
+      border-radius: 10px;
+      font-size: 1rem;
+      font-weight: bold;
+      cursor: pointer;
+      transition: background-color 0.3s ease-in-out;
+    }
+
+    button:hover {
+      background-color: #e85c50;
+    }
+
+    #mensaje-exito p {
+      background-color: #d4edda;
+      color: #155724;
+      padding: 1rem;
+      border: 1px solid #c3e6cb;
+      border-radius: 10px;
+      margin-top: 1.5rem;
+      text-align: center;
+      font-weight: bold;
+    }
+
+    #registros div {
+      background: #fff0e6;
+      border: 1px solid #ffc7b2;
+      padding: 1rem;
+      border-radius: 10px;
+      margin: 1rem 0;
+      font-size: 0.95rem;
+      color: #444;
+      line-height: 1.4;
+    }
+
+    .oculto {
+      display: none;
+    }
+
+    @media (max-width: 600px) {
+      .container {
+        padding: 1.5rem;
+      }
+
+      h1, h2 {
+        font-size: 1.5rem;
+      }
+
+      input, select, textarea, button {
+        font-size: 1rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🍓 Frutalia - Pedido de Jugos Naturales 🍍</h1>
+
+    <form id="pedido-form">
+      <label for="nombre">👤 Nombre del cliente:</label>
+      <input type="text" id="nombre" name="Nombre del cliente" required />
+
+      <label for="telefono">📞 Teléfono:</label>
+      <input type="tel" id="telefono" name="Teléfono" required />
+
+      <label for="sabor">🥤 Sabor del jugo:</label>
+      <select id="sabor" name="Sabor del jugo" required>
+        <option value="">Selecciona un sabor</option>
+        <option value="naranja">🍊 Naranja</option>
+        <option value="mango">🥭 Mango</option>
+        <option value="fresa">🍓 Fresa</option>
+        <option value="piña">🍍 Piña</option>
+      </select>
+
+      <label for="tamano">📏 Tamaño:</label>
+      <select id="tamano" name="Tamaño" required>
+        <option value="">Selecciona un tamaño</option>
+        <option value="chico">🥤 Chico</option>
+        <option value="mediano">🥤🥤 Mediano</option>
+        <option value="grande">🥤🥤🥤 Grande</option>
+      </select>
+
+      <label for="comentarios">📝 Comentarios adicionales:</label>
+      <textarea id="comentarios" name="Comentarios adicionales"></textarea>
+
+      <button type="submit">🚀 Enviar Pedido</button>
+    </form>
+
+    <div id="mensaje-exito" class="oculto">
+      <p>✅ Tu pedido ha sido enviado con éxito, pasa a recogerlo en 10 minutos. ¡Frutalia agradece tu preferencia! 💚</p>
+    </div>
+
+    <h2>📋 Pedidos registrados</h2>
+    <div id="registros"></div>
+  </div>
+
+  <script>
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxrndv7bLGCB-3TDz0Xly6QKM2uqoh3pjAQIxgBpadFy2gtRiN7eNEJkGJ_OT9IGRhTwQ/exec";
+
+    const form = document.getElementById('pedido-form');
+    const mensajeExito = document.getElementById('mensaje-exito');
+    const registrosDiv = document.getElementById('registros');
+
+    form.addEventListener('submit', e => {
+      e.preventDefault();
+      const formData = new FormData(form);
+      fetch(SCRIPT_URL, { method: 'POST', body: formData })
+        .then(response => {
+          if (response.ok) {
+            form.reset();
+            mensajeExito.classList.remove('oculto');
+            setTimeout(() => mensajeExito.classList.add('oculto'), 6000);
+            cargarRegistros();
+          } else {
+            alert('Error al enviar el pedido. Intenta de nuevo.');
+          }
+        })
+        .catch(error => alert('Error de conexión al servidor.'));
+    });
+
+    function cargarRegistros() {
+      fetch(SCRIPT_URL)
+        .then(res => res.json())
+        .then(data => {
+          registrosDiv.innerHTML = '';
+          data.reverse().forEach(row => {
+            const div = document.createElement('div');
+            div.innerHTML = `
+              <strong>👤 Nombre:</strong> ${row[0]}<br>
+              <strong>📞 Tel:</strong> ${row[1]}<br>
+              <strong>🍹 Sabor:</strong> ${row[2]}<br>
+              <strong>📏 Tamaño:</strong> ${row[3]}<br>
+              <strong>📝 Comentarios:</strong> ${row[4] || 'Sin comentarios'}
+            `;
+            registrosDiv.appendChild(div);
+          });
+        });
+    }
+
+    // Cargar registros al iniciar
+    window.addEventListener('load', cargarRegistros);
+  </script>
+</body>
+</html>
